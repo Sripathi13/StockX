@@ -1,4 +1,4 @@
-# StockVault - Enterprise Modular Inventory Management System (IMS)
+# StockX - Enterprise Modular Inventory Management System (IMS)
 
 
 > Enterprise-grade real-time inventory management platform inspired by **Zoho Inventory**, **Odoo Inventory**, **Linear**, and **Oracle NetSuite**. Designed to replace manual registers, spreadsheets, and fragmented logistics tools with strict role-based control, multi-warehouse bin allocation, automated receipt put-away, outbound order picking/packing/shipping, cycle count discrepancy audits, and an immutable stock ledger.
