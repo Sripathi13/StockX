@@ -99,7 +99,7 @@ interface InventoryContextType {
 
   // Adjustments & Audit
   manualStockAdjust: (itemId: string, qtyDelta: number, reason: string, isWriteOff: boolean) => void;
-  resetToDemoData: () => void;
+  resetDatabase: () => void;
   exportDataAsJSON: () => void;
   importDataFromJSON: (jsonData: string) => boolean;
   exportItemsCSV: () => void;
@@ -866,7 +866,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     soundService.playSuccessChime();
   };
 
-  const resetToDemoData = () => {
+  const resetDatabase = () => {
     setItems(INITIAL_ITEMS);
     setPurchaseOrders(INITIAL_PURCHASE_ORDERS);
     setDispatchOrders(INITIAL_DISPATCH_ORDERS);
@@ -996,7 +996,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         recordCycleCountItem,
         reconcileCycleCount,
         manualStockAdjust,
-        resetToDemoData,
+        resetDatabase,
         exportDataAsJSON,
         importDataFromJSON,
         exportItemsCSV,

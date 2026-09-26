@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenScanner }) => {
     shelvingTasks,
     dispatchOrders,
     exportDataAsJSON,
-    resetToDemoData,
+    resetDatabase,
   } = useInventory();
 
   const [profileOpen, setProfileOpen] = useState(false);
@@ -182,11 +182,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenScanner }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={resetToDemoData}
+                  onClick={resetDatabase}
                   className="w-full text-left px-2 py-1.5 rounded text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                 >
                   <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Reset Demo Data</span>
+                  <span>Restore Initial Registry</span>
                 </button>
               </div>
 

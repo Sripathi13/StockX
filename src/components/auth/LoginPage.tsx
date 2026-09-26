@@ -34,9 +34,9 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleFastLogin = (demoEmail: string, demoRole: UserRole) => {
-    setEmail(demoEmail);
-    login(demoEmail, demoRole);
+  const handleFastLogin = (userEmail: string, userRole: UserRole) => {
+    setEmail(userEmail);
+    login(userEmail, userRole);
   };
 
   return (
@@ -125,7 +125,7 @@ export const LoginPage: React.FC = () => {
                 </div>
 
                 <div className="pt-2 text-xs font-mono text-slate-400 flex items-center justify-between">
-                  <span>Demo Profile: Sarah Vance</span>
+                  <span>Authorized Account: Sarah Vance</span>
                   <span className="text-slate-500">sarah.vance@stockx.corp</span>
                 </div>
               </div>
@@ -181,7 +181,7 @@ export const LoginPage: React.FC = () => {
                 </div>
 
                 <div className="pt-2 text-xs font-mono text-slate-400 flex items-center justify-between">
-                  <span>Demo Profile: Marcus Chen</span>
+                  <span>Authorized Account: Marcus Chen</span>
                   <span className="text-slate-500">marcus.chen@stockx.corp</span>
                 </div>
               </div>
