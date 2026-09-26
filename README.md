@@ -1,8 +1,5 @@
 # StockVault - Enterprise Modular Inventory Management System (IMS)
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/stockvault/stockvault)
-[![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 
 > Enterprise-grade real-time inventory management platform inspired by **Zoho Inventory**, **Odoo Inventory**, **Linear**, and **Oracle NetSuite**. Designed to replace manual registers, spreadsheets, and fragmented logistics tools with strict role-based control, multi-warehouse bin allocation, automated receipt put-away, outbound order picking/packing/shipping, cycle count discrepancy audits, and an immutable stock ledger.
 
