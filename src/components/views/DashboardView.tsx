@@ -35,6 +35,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     receipts,
     deliveries,
     warehouses,
+    activeWarehouseId,
     locations,
     categories,
     stockLedger,
@@ -78,7 +79,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               Production IMS
             </span>
             <span className="text-xs text-slate-500 font-mono">
-              Cluster: Chicago Central Alpha
+              Cluster: {(warehouses.find((w) => w.id === activeWarehouseId) || warehouses[0])?.name || 'Chera Hub'}
             </span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">

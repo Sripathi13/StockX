@@ -203,9 +203,36 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [categories, setCategories] = useState<Category[]>(() =>
     getStored<Category[]>('categories', INITIAL_CATEGORIES)
   );
-  const [warehouses, setWarehouses] = useState<Warehouse[]>(() =>
-    getStored<Warehouse[]>('warehouses', INITIAL_WAREHOUSES)
-  );
+  const [warehouses, setWarehouses] = useState<Warehouse[]>(() => {
+    const raw = getStored<Warehouse[]>('warehouses', INITIAL_WAREHOUSES);
+    return raw.map((w) => {
+      if (w.id === 'wh_alpha' || w.code === 'WH-ALPHA' || w.name.includes('Alpha')) {
+        return {
+          ...w,
+          code: 'WH-CHERA',
+          name: 'Chera Hub (Central Logistics & High-Bay Storage)',
+          location: w.location?.includes('Chicago') ? 'Chera Central Hub' : w.location || 'Chera Central Hub',
+        };
+      }
+      if (w.id === 'wh_beta' || w.code === 'WH-BETA' || w.name.includes('Beta')) {
+        return {
+          ...w,
+          code: 'WH-CHOLA',
+          name: 'Chola Depot (Regional Cross-Dock & Buffer)',
+          location: w.location?.includes('Gary') ? 'Chola Regional Facility' : w.location || 'Chola Regional Facility',
+        };
+      }
+      if (w.id === 'wh_gamma' || w.code === 'WH-GAMMA' || w.name.includes('Gamma')) {
+        return {
+          ...w,
+          code: 'WH-PANDYA',
+          name: 'Pandya Assembly (Sub-Assembly & Staging Hub)',
+          location: w.location?.includes('Milwaukee') ? 'Pandya Assembly Facility' : w.location || 'Pandya Assembly Facility',
+        };
+      }
+      return w;
+    });
+  });
   const [locations, setLocations] = useState<WarehouseLocation[]>(() =>
     getStored<WarehouseLocation[]>('locations', INITIAL_LOCATIONS)
   );

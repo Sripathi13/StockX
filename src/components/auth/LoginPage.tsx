@@ -199,7 +199,7 @@ export const LoginPage: React.FC = () => {
             PostgreSQL Cluster Online
           </span>
           <span className="hidden sm:inline font-mono text-slate-400 border border-slate-700 px-2 py-0.5 rounded">
-            Chicago Alpha Hub
+            Chera Logistics Hub
           </span>
         </div>
       </header>

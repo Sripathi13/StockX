@@ -52,6 +52,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     items,
     currentUser,
     activeWarehouseId,
+    warehouses,
     updateItem,
     formatCurrency,
     stockLedger,
@@ -1035,7 +1036,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                     {scannedItem.binLocation}
                   </div>
                   <div className="text-[11px] text-slate-500">
-                    Warehouse: <strong>Alpha Logistics Hub (Chicago Central Alpha)</strong>
+                    Warehouse: <strong>{(warehouses.find((w) => w.id === (scannedItem?.warehouseId || activeWarehouseId)) || warehouses[0])?.name || 'Chera Hub'}</strong>
                   </div>
                 </div>
 
@@ -1245,7 +1246,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
 
         {/* Footer */}
         <div className="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-          <span>Active Warehouse: <strong>Alpha Logistics Hub</strong></span>
+          <span>Active Warehouse: <strong>{(warehouses.find((w) => w.id === activeWarehouseId) || warehouses[0])?.name || 'Chera Hub'}</strong></span>
           <button
             type="button"
             onClick={() => {
