@@ -1,5 +1,6 @@
 // StockX Enterprise Inventory Management System - Context & State Engine
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { formatCurrency, getCurrencySymbol } from '../utils/currency';
 import {
   User,
   UserRole,
@@ -155,6 +156,8 @@ interface InventoryContextType {
   reconcileCycleCount: (sessionId: string) => void;
 
   // System Utilities
+  currencySymbol: string;
+  formatCurrency: (amount: number) => string;
   resetDatabase: () => void;
   exportDataAsJSON: () => void;
   importDataFromJSON: (jsonData: string) => boolean;
@@ -162,15 +165,12 @@ interface InventoryContextType {
   exportStockLedgerCSV: () => void;
 }
 
-const STORAGE_PREFIX = 'stockx_ims_prod_v1_';
-const LEGACY_STORAGE_PREFIX = 'stockvault_ims_prod_v1_';
+const STORAGE_PREFIX = 'stockx_ims_inr_v1_';
+const LEGACY_STORAGE_PREFIXES = ['stockx_ims_prod_v1_', 'stockvault_ims_prod_v1_'];
 
 function getStored<T>(key: string, fallback: T): T {
   try {
     let item = localStorage.getItem(STORAGE_PREFIX + key);
-    if (!item) {
-      item = localStorage.getItem(LEGACY_STORAGE_PREFIX + key);
-    }
     return item ? JSON.parse(item) : fallback;
   } catch {
     return fallback;
@@ -1318,7 +1318,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ];
     keysToRemove.forEach((k) => {
       localStorage.removeItem(STORAGE_PREFIX + k);
-      localStorage.removeItem(LEGACY_STORAGE_PREFIX + k);
+      LEGACY_STORAGE_PREFIXES.forEach((p) => localStorage.removeItem(p + k));
     });
 
     soundService.playSuccessChime();
@@ -1386,8 +1386,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       'Stock Available',
       'Reorder Point',
       'Reorder Quantity',
-      'Unit Cost (USD)',
-      'Selling Price (USD)',
+      'Unit Cost (INR)',
+      'Selling Price (INR)',
       'Total Asset Valuation',
       'Supplier',
       'Bin Location',
@@ -1538,6 +1538,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         createCycleCountSession,
         recordCycleCountItem,
         reconcileCycleCount,
+
+        currencySymbol: getCurrencySymbol(settings.currency),
+        formatCurrency: (amount: number) => formatCurrency(amount, settings.currency),
 
         resetDatabase,
         exportDataAsJSON,

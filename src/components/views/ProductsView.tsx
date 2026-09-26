@@ -29,6 +29,8 @@ export const ProductsView: React.FC = () => {
     updateItem,
     deleteItem,
     exportProductsCSV,
+    formatCurrency,
+    currencySymbol,
   } = useInventory();
 
   // Search & Filters
@@ -54,8 +56,8 @@ export const ProductsView: React.FC = () => {
   const [stockOnHand, setStockOnHand] = useState(50);
   const [minThreshold, setMinThreshold] = useState(20);
   const [reorderQuantity, setReorderQuantity] = useState(50);
-  const [unitCost, setUnitCost] = useState(15.0);
-  const [unitPrice, setUnitPrice] = useState(30.0);
+  const [unitCost, setUnitCost] = useState(1200.0);
+  const [unitPrice, setUnitPrice] = useState(2500.0);
   const [supplierId, setSupplierId] = useState(suppliers[0]?.id || 'sup_01');
   const [barcode, setBarcode] = useState('');
 
@@ -263,8 +265,8 @@ export const ProductsView: React.FC = () => {
                 <th className="py-3 px-4 text-right">On Hand</th>
                 <th className="py-3 px-4 text-right">Available</th>
                 <th className="py-3 px-4 text-right">Reorder Point</th>
-                <th className="py-3 px-4 text-right">Cost (USD)</th>
-                <th className="py-3 px-4 text-right">Valuation</th>
+                <th className="py-3 px-4 text-right">Cost ({currencySymbol})</th>
+                <th className="py-3 px-4 text-right">Valuation ({currencySymbol})</th>
                 <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
@@ -311,10 +313,10 @@ export const ProductsView: React.FC = () => {
                         {item.minThreshold}
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-slate-600">
-                        ${item.unitCost.toFixed(2)}
+                        {formatCurrency(item.unitCost)}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-semibold text-slate-900">
-                        ${(item.stockOnHand * item.unitCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(item.stockOnHand * item.unitCost)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         {isOut ? (
@@ -536,7 +538,7 @@ export const ProductsView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Cost Price ($)</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Cost Price ({currencySymbol})</label>
                   <input
                     type="number"
                     step="0.01"
@@ -548,7 +550,7 @@ export const ProductsView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Selling Price ($)</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Selling Price ({currencySymbol})</label>
                   <input
                     type="number"
                     step="0.01"

@@ -14,7 +14,7 @@ import { useInventory } from '../../context/InventoryContext';
 import { Category } from '../../types';
 
 export const CategoriesView: React.FC = () => {
-  const { categories, items, addCategory, updateCategory, deleteCategory } = useInventory();
+  const { categories, items, addCategory, updateCategory, deleteCategory, formatCurrency } = useInventory();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modals
@@ -145,7 +145,7 @@ export const CategoriesView: React.FC = () => {
                 <div>
                   <span className="text-[11px] text-slate-400">Inventory Valuation</span>
                   <div className="font-bold text-slate-900 font-mono mt-0.5">
-                    ${totalValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatCurrency(totalValuation)}
                   </div>
                 </div>
               </div>

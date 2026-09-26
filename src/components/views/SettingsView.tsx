@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import {
   Settings as SettingsIcon,
   Building2,
-  DollarSign,
+  IndianRupee,
   Shield,
   Download,
   Upload,
@@ -152,11 +152,11 @@ export const SettingsView: React.FC = () => {
                 onChange={(e) => setCurrency(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 font-mono"
               >
+                <option value="INR">INR (₹ - Indian Rupee)</option>
                 <option value="USD">USD ($ - US Dollar)</option>
                 <option value="EUR">EUR (€ - Euro)</option>
                 <option value="GBP">GBP (£ - British Pound)</option>
                 <option value="CAD">CAD ($ - Canadian Dollar)</option>
-                <option value="INR">INR (₹ - Indian Rupee)</option>
               </select>
             </div>
 
@@ -167,6 +167,7 @@ export const SettingsView: React.FC = () => {
                 onChange={(e) => setTimezone(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
               >
+                <option value="Asia/Kolkata (IST)">Asia/Kolkata (IST)</option>
                 <option value="America/Chicago (CST)">America/Chicago (CST)</option>
                 <option value="America/New_York (EST)">America/New_York (EST)</option>
                 <option value="America/Los_Angeles (PST)">America/Los_Angeles (PST)</option>

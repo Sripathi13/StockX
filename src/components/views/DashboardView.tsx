@@ -5,7 +5,7 @@ import {
   AlertTriangle,
   ArrowDownToDot,
   ArrowUpFromDot,
-  DollarSign,
+  IndianRupee,
   Package,
   Layers,
   Building2,
@@ -40,6 +40,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     stockLedger,
     currentUser,
     settings,
+    formatCurrency,
   } = useInventory();
 
   // Metrics
@@ -127,17 +128,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               Stock Valuation (Cost)
             </span>
             <div className="p-2 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
-              <DollarSign className="w-4 h-4" />
+              <IndianRupee className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <div className="text-2xl font-bold text-slate-900 tracking-tight font-mono">
-              ${totalValuationCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totalValuationCost)}
             </div>
             <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
               <span>Selling Est:</span>
               <strong className="text-slate-700 font-mono">
-                ${totalValuationSelling.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatCurrency(totalValuationSelling)}
               </strong>
             </div>
           </div>
@@ -242,7 +243,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <div className="flex items-center gap-3 font-mono">
                       <span className="text-slate-500">{cat.units} units</span>
                       <span className="font-bold text-slate-900">
-                        ${cat.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(cat.value)}
                       </span>
                     </div>
                   </div>

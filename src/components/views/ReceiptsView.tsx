@@ -29,6 +29,8 @@ export const ReceiptsView: React.FC = () => {
     createReceipt,
     updateReceiptStatus,
     currentUser,
+    formatCurrency,
+    currencySymbol,
   } = useInventory();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -218,7 +220,7 @@ export const ReceiptsView: React.FC = () => {
                         {rec.items.length} SKUs
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
-                        ${rec.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(rec.totalCost)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${badge.color}`}>
@@ -550,8 +552,8 @@ export const ReceiptsView: React.FC = () => {
                     <th className="py-2">Item</th>
                     <th className="py-2 text-right">Ordered</th>
                     <th className="py-2 text-right">Received</th>
-                    <th className="py-2 text-right">Unit Cost</th>
-                    <th className="py-2 text-right">Subtotal</th>
+                    <th className="py-2 text-right">Unit Cost ({currencySymbol})</th>
+                    <th className="py-2 text-right">Subtotal ({currencySymbol})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-mono">
@@ -560,8 +562,8 @@ export const ReceiptsView: React.FC = () => {
                       <td className="py-2.5 font-sans font-medium text-slate-900">{i.name} ({i.sku})</td>
                       <td className="py-2.5 text-right text-slate-600">{i.orderedQty}</td>
                       <td className="py-2.5 text-right text-emerald-600 font-bold">{i.receivedQty}</td>
-                      <td className="py-2.5 text-right text-slate-600">${i.unitCost.toFixed(2)}</td>
-                      <td className="py-2.5 text-right font-bold text-slate-900">${(i.orderedQty * i.unitCost).toFixed(2)}</td>
+                      <td className="py-2.5 text-right text-slate-600">{formatCurrency(i.unitCost)}</td>
+                      <td className="py-2.5 text-right font-bold text-slate-900">{formatCurrency(i.orderedQty * i.unitCost)}</td>
                     </tr>
                   ))}
                 </tbody>

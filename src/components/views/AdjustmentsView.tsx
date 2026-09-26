@@ -25,6 +25,7 @@ export const AdjustmentsView: React.FC = () => {
     approveAdjustment,
     rejectAdjustment,
     currentUser,
+    formatCurrency,
   } = useInventory();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -238,7 +239,7 @@ export const AdjustmentsView: React.FC = () => {
                         {netVariance > 0 ? `+${netVariance}` : netVariance}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
-                        ${Math.abs(adj.totalVarianceValue).toFixed(2)}
+                        {formatCurrency(Math.abs(adj.totalVarianceValue))}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${getStatusBadge(adj.status)}`}>
@@ -477,7 +478,7 @@ export const AdjustmentsView: React.FC = () => {
                 <div>Status: <strong className="text-slate-900">{viewingAdj.status}</strong></div>
                 <div>Submitted By: <strong className="text-slate-900">{viewingAdj.createdBy}</strong></div>
                 <div>Approved By: <strong className="text-slate-900">{viewingAdj.approvedBy || 'Pending'}</strong></div>
-                <div>Total Impact: <strong className="text-slate-900 font-bold">${Math.abs(viewingAdj.totalVarianceValue).toFixed(2)}</strong></div>
+                <div>Total Impact: <strong className="text-slate-900 font-bold">{formatCurrency(Math.abs(viewingAdj.totalVarianceValue))}</strong></div>
               </div>
 
               {viewingAdj.notes && (

@@ -1,5 +1,5 @@
 // StockX Enterprise Collapsible Navigation Sidebar
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard,
   Package,
@@ -17,6 +17,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   ScanLine,
 } from 'lucide-react';
 import { useInventory } from '../../context/InventoryContext';
@@ -50,6 +52,43 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { currentUser, items, receipts, deliveries, adjustments } = useInventory();
+  const menuListRef = useRef<HTMLDivElement>(null);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  const checkScrollState = () => {
+    if (!menuListRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = menuListRef.current;
+    setCanScrollUp(scrollTop > 10);
+    setCanScrollDown(scrollTop + clientHeight < scrollHeight - 10);
+  };
+
+  useEffect(() => {
+    checkScrollState();
+    const el = menuListRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScrollState, { passive: true });
+      window.addEventListener('resize', checkScrollState);
+      return () => {
+        el.removeEventListener('scroll', checkScrollState);
+        window.removeEventListener('resize', checkScrollState);
+      };
+    }
+  }, []);
+
+  const handleScrollDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (menuListRef.current) {
+      menuListRef.current.scrollBy({ top: 180, behavior: 'smooth' });
+    }
+  };
+
+  const handleScrollToTop = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (menuListRef.current) {
+      menuListRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Badges
   const lowStockCount = items.filter((i) => i.stockOnHand <= i.minThreshold).length;
@@ -180,8 +219,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
       </div>
 
-      {/* Navigation Menu List */}
-      <div className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
+      {/* Navigation Menu List (Independent Left Blue Scroll Container) */}
+      <div
+        ref={menuListRef}
+        onWheel={(e) => e.stopPropagation()}
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-3 px-2 space-y-1 sidebar-scroll relative"
+      >
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -224,6 +267,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
       </div>
+
+      {/* Blue Left Side Scroll Down Control */}
+      {!isCollapsed ? (
+        <div className="px-2 py-1.5 border-t border-slate-800 bg-slate-900/95 shrink-0 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleScrollDown}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-semibold shadow-xs border border-blue-400/30 transition-all cursor-pointer group"
+            title="Scroll blue left menu down"
+          >
+            <ChevronDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform" />
+            <span>Scroll Menu Down</span>
+          </button>
+          {canScrollUp && (
+            <button
+              type="button"
+              onClick={handleScrollToTop}
+              className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors cursor-pointer"
+              title="Scroll blue left menu to top"
+            >
+              <ChevronUp className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="px-2 py-1.5 border-t border-slate-800 bg-slate-900/95 shrink-0 flex flex-col items-center gap-1">
+          <button
+            type="button"
+            onClick={handleScrollDown}
+            className="w-10 h-8 rounded-xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-xs transition-all cursor-pointer"
+            title="Scroll blue left menu down"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Bottom Barcode Quick Launch */}
       {onOpenScanner && (

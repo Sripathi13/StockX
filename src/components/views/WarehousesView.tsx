@@ -15,7 +15,7 @@ import { useInventory } from '../../context/InventoryContext';
 import { Warehouse } from '../../types';
 
 export const WarehousesView: React.FC = () => {
-  const { warehouses, items, locations, addWarehouse, updateWarehouse, users } = useInventory();
+  const { warehouses, items, locations, addWarehouse, updateWarehouse, users, formatCurrency } = useInventory();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingWh, setEditingWh] = useState<Warehouse | null>(null);
@@ -180,7 +180,7 @@ export const WarehousesView: React.FC = () => {
                 <div>
                   <span className="text-[11px] text-slate-400">Stock Valuation</span>
                   <div className="font-bold text-slate-900 font-mono mt-0.5">
-                    ${totalValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatCurrency(totalValuation)}
                   </div>
                 </div>
                 <div>

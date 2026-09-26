@@ -31,6 +31,8 @@ export const DeliveriesView: React.FC = () => {
     pickDeliveryItem,
     packDeliveryItem,
     currentUser,
+    formatCurrency,
+    currencySymbol,
   } = useInventory();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -222,7 +224,7 @@ export const DeliveriesView: React.FC = () => {
                         {del.items.length} SKUs
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
-                        ${del.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(del.totalAmount)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${badge.color}`}>
@@ -578,7 +580,7 @@ export const DeliveriesView: React.FC = () => {
                 <div>Status: <strong className="text-slate-900">{viewingDelivery.status}</strong></div>
                 <div>Target Date: <strong className="text-slate-900">{viewingDelivery.deliveryDate}</strong></div>
                 <div>Priority: <strong className="text-slate-900 uppercase">{viewingDelivery.priority}</strong></div>
-                <div>Total Amount: <strong className="text-slate-900 font-bold">${viewingDelivery.totalAmount.toFixed(2)}</strong></div>
+                <div>Total Amount: <strong className="text-slate-900 font-bold">{formatCurrency(viewingDelivery.totalAmount)}</strong></div>
               </div>
 
               <table className="w-full text-left border-collapse text-xs">
@@ -588,7 +590,7 @@ export const DeliveriesView: React.FC = () => {
                     <th className="py-2">Bin Location</th>
                     <th className="py-2 text-right">Ordered</th>
                     <th className="py-2 text-right">Picked</th>
-                    <th className="py-2 text-right">Unit Price</th>
+                    <th className="py-2 text-right">Unit Price ({currencySymbol})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-mono">
@@ -598,7 +600,7 @@ export const DeliveriesView: React.FC = () => {
                       <td className="py-2.5 text-blue-600">{i.binLocation}</td>
                       <td className="py-2.5 text-right text-slate-700">{i.orderedQty}</td>
                       <td className="py-2.5 text-right text-emerald-600 font-bold">{i.pickedQty}</td>
-                      <td className="py-2.5 text-right font-bold text-slate-900">${i.unitPrice.toFixed(2)}</td>
+                      <td className="py-2.5 text-right font-bold text-slate-900">{formatCurrency(i.unitPrice)}</td>
                     </tr>
                   ))}
                 </tbody>

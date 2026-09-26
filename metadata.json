@@ -1,6 +1,10 @@
 {
   "name": "StockX - Modular Inventory Management System",
   "description": "Production-ready enterprise Inventory Management System (StockX) providing real-time stock control, multi-warehouse management, receipts, deliveries, internal transfers, stock adjustments, and immutable stock ledger audit trails.",
-  "requestFramePermissions": ["camera"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

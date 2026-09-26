@@ -4,7 +4,7 @@ import {
   BarChart3,
   Download,
   Printer,
-  DollarSign,
+  IndianRupee,
   AlertTriangle,
   Activity,
   Building2,
@@ -18,7 +18,16 @@ import { useInventory } from '../../context/InventoryContext';
 type ReportType = 'valuation' | 'reorder' | 'velocity' | 'capacity' | 'discrepancy';
 
 export const ReportsView: React.FC = () => {
-  const { items, categories, warehouses, suppliers, adjustments, stockLedger } = useInventory();
+  const {
+    items,
+    categories,
+    warehouses,
+    suppliers,
+    adjustments,
+    stockLedger,
+    formatCurrency,
+    currencySymbol,
+  } = useInventory();
   const [activeReport, setActiveReport] = useState<ReportType>('valuation');
 
   // 1. Valuation Calculations
@@ -86,7 +95,7 @@ export const ReportsView: React.FC = () => {
     let filename = `stockx_${activeReport}_report.csv`;
 
     if (activeReport === 'valuation') {
-      headers = ['SKU', 'Product Name', 'Category', 'Stock On Hand', 'Unit Cost', 'Unit Price', 'Total Cost Valuation', 'Total Selling Valuation', 'Potential Margin'];
+      headers = ['SKU', 'Product Name', 'Category', 'Stock On Hand', 'Unit Cost (INR)', 'Unit Price (INR)', 'Total Cost Valuation (INR)', 'Total Selling Valuation (INR)', 'Potential Margin (INR)'];
       rows = items.map((i) => [
         i.sku,
         `"${i.name}"`,
@@ -99,7 +108,7 @@ export const ReportsView: React.FC = () => {
         ((i.stockOnHand * (i.unitPrice - i.unitCost))).toFixed(2),
       ]);
     } else if (activeReport === 'reorder') {
-      headers = ['SKU', 'Product Name', 'Supplier', 'Stock On Hand', 'Min Reorder Threshold', 'Suggested Order Qty', 'Unit Cost', 'Capital Required'];
+      headers = ['SKU', 'Product Name', 'Supplier', 'Stock On Hand', 'Min Reorder Threshold', 'Suggested Order Qty', 'Unit Cost (INR)', 'Capital Required (INR)'];
       rows = reorderAlerts.map((i) => [
         i.sku,
         `"${i.name}"`,
@@ -197,7 +206,7 @@ export const ReportsView: React.FC = () => {
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
-          <DollarSign className="w-4 h-4" />
+          <IndianRupee className="w-4 h-4" />
           <span>Stock Valuation</span>
         </button>
 
@@ -264,7 +273,7 @@ export const ReportsView: React.FC = () => {
                 Total Asset Cost Basis
               </span>
               <div className="text-2xl font-bold font-mono text-slate-900 mt-2">
-                ${totalCostValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatCurrency(totalCostValuation)}
               </div>
               <p className="text-[11px] text-slate-400 mt-1">Direct supplier procurement value</p>
             </div>
@@ -274,7 +283,7 @@ export const ReportsView: React.FC = () => {
                 Total Selling Valuation
               </span>
               <div className="text-2xl font-bold font-mono text-blue-600 mt-2">
-                ${totalSellingValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatCurrency(totalSellingValuation)}
               </div>
               <p className="text-[11px] text-slate-400 mt-1">Retail dispatch value</p>
             </div>
@@ -284,7 +293,7 @@ export const ReportsView: React.FC = () => {
                 Unrealized Margin Spread
               </span>
               <div className="text-2xl font-bold font-mono text-emerald-600 mt-2">
-                ${grossMarginPotential.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({grossMarginPercent.toFixed(1)}%)
+                {formatCurrency(grossMarginPotential)} ({grossMarginPercent.toFixed(1)}%)
               </div>
               <p className="text-[11px] text-slate-400 mt-1">Projected gross profit yield</p>
             </div>
@@ -301,10 +310,10 @@ export const ReportsView: React.FC = () => {
                   <th className="py-3 px-4">SKU / Item</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4 text-right">Units on Hand</th>
-                  <th className="py-3 px-4 text-right">Unit Cost</th>
-                  <th className="py-3 px-4 text-right">Selling Price</th>
-                  <th className="py-3 px-4 text-right">Total Cost Value</th>
-                  <th className="py-3 px-4 text-right">Gross Spread</th>
+                  <th className="py-3 px-4 text-right">Unit Cost ({currencySymbol})</th>
+                  <th className="py-3 px-4 text-right">Selling Price ({currencySymbol})</th>
+                  <th className="py-3 px-4 text-right">Total Cost Value ({currencySymbol})</th>
+                  <th className="py-3 px-4 text-right">Gross Spread ({currencySymbol})</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
@@ -318,10 +327,10 @@ export const ReportsView: React.FC = () => {
                       </td>
                       <td className="py-2.5 px-4 font-sans text-slate-600">{i.category}</td>
                       <td className="py-2.5 px-4 text-right font-bold text-slate-900">{i.stockOnHand}</td>
-                      <td className="py-2.5 px-4 text-right text-slate-600">${i.unitCost.toFixed(2)}</td>
-                      <td className="py-2.5 px-4 text-right text-slate-600">${i.unitPrice.toFixed(2)}</td>
-                      <td className="py-2.5 px-4 text-right font-bold text-slate-900">${costVal.toFixed(2)}</td>
-                      <td className="py-2.5 px-4 text-right font-bold text-emerald-600">${(sellVal - costVal).toFixed(2)}</td>
+                      <td className="py-2.5 px-4 text-right text-slate-600">{formatCurrency(i.unitCost)}</td>
+                      <td className="py-2.5 px-4 text-right text-slate-600">{formatCurrency(i.unitPrice)}</td>
+                      <td className="py-2.5 px-4 text-right font-bold text-slate-900">{formatCurrency(costVal)}</td>
+                      <td className="py-2.5 px-4 text-right font-bold text-emerald-600">{formatCurrency(sellVal - costVal)}</td>
                     </tr>
                   );
                 })}
@@ -340,7 +349,7 @@ export const ReportsView: React.FC = () => {
               <div>
                 <strong>{reorderAlerts.length} Products Below Safety Threshold</strong>
                 <p className="text-amber-700 mt-0.5">
-                  Procurement capital required to restore safety levels: <span className="font-mono font-bold">${totalReorderCapitalNeeded.toFixed(2)} USD</span>
+                  Procurement capital required to restore safety levels: <span className="font-mono font-bold">{formatCurrency(totalReorderCapitalNeeded)}</span>
                 </p>
               </div>
             </div>
@@ -355,7 +364,7 @@ export const ReportsView: React.FC = () => {
                   <th className="py-3 px-4 text-right">Physical On Hand</th>
                   <th className="py-3 px-4 text-right">Safety Reorder Point</th>
                   <th className="py-3 px-4 text-right">Suggested Order Qty</th>
-                  <th className="py-3 px-4 text-right">Estimated Cost</th>
+                  <th className="py-3 px-4 text-right">Estimated Cost ({currencySymbol})</th>
                   <th className="py-3 px-4">Lead Time</th>
                 </tr>
               </thead>
@@ -372,7 +381,7 @@ export const ReportsView: React.FC = () => {
                       <td className="py-2.5 px-4 text-right text-slate-500">{i.minThreshold}</td>
                       <td className="py-2.5 px-4 text-right font-bold text-blue-600">+{i.reorderQuantity}</td>
                       <td className="py-2.5 px-4 text-right font-bold text-slate-900">
-                        ${(i.reorderQuantity * i.unitCost).toFixed(2)}
+                        {formatCurrency(i.reorderQuantity * i.unitCost)}
                       </td>
                       <td className="py-2.5 px-4 font-sans text-slate-500">{sup?.leadTimeDays || 3} days</td>
                     </tr>
@@ -467,7 +476,7 @@ export const ReportsView: React.FC = () => {
                 <div>
                   <span className="text-[11px] text-slate-400">Total Stock Value</span>
                   <div className="font-bold text-slate-900 font-mono mt-0.5">
-                    ${wh.currentValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatCurrency(wh.currentValuation)}
                   </div>
                 </div>
                 <div>
@@ -489,7 +498,7 @@ export const ReportsView: React.FC = () => {
                 Total Shrinkage / Damage Value
               </span>
               <div className="text-2xl font-bold font-mono text-rose-600 mt-2">
-                ${totalAdjustmentsValue.toFixed(2)}
+                {formatCurrency(totalAdjustmentsValue)}
               </div>
               <p className="text-[11px] text-slate-400 mt-1">Recorded audit reconciliations</p>
             </div>
@@ -522,7 +531,7 @@ export const ReportsView: React.FC = () => {
                   <th className="py-3 px-4">Adjustment #</th>
                   <th className="py-3 px-4">Reason</th>
                   <th className="py-3 px-4">Warehouse</th>
-                  <th className="py-3 px-4 text-right">Variance Value</th>
+                  <th className="py-3 px-4 text-right">Variance Value ({currencySymbol})</th>
                   <th className="py-3 px-4 text-center">Status</th>
                   <th className="py-3 px-4">Date</th>
                 </tr>
@@ -533,7 +542,7 @@ export const ReportsView: React.FC = () => {
                     <td className="py-2.5 px-4 font-bold text-blue-600">{a.adjustmentNumber}</td>
                     <td className="py-2.5 px-4 font-sans font-medium text-slate-900">{a.reason}</td>
                     <td className="py-2.5 px-4 text-slate-600">{a.warehouseId}</td>
-                    <td className="py-2.5 px-4 text-right font-bold text-rose-600">${Math.abs(a.totalVarianceValue).toFixed(2)}</td>
+                    <td className="py-2.5 px-4 text-right font-bold text-rose-600">{formatCurrency(Math.abs(a.totalVarianceValue))}</td>
                     <td className="py-2.5 px-4 text-center">
                       <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
                         {a.status}
