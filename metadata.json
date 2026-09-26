@@ -1,0 +1,6 @@
+{
+  "name": "PulseIMS - Modular Inventory Management System",
+  "description": "Enterprise modular Inventory Management System connecting Inventory Managers and Warehouse Staff with real-time stock control, picking, shelving, transfers, and cycle counts.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
