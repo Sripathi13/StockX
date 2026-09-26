@@ -2,6 +2,7 @@ import React from 'react';
 
 interface BarcodeDisplayProps {
   value: string;
+  format?: string;
   sku?: string;
   name?: string;
   binLocation?: string;

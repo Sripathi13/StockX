@@ -1,38 +1,29 @@
-import React, { useState, useEffect } from 'react';
+// StockX Enterprise Modular Inventory Management System - Main Entry Point
+import React, { useState } from 'react';
 import { InventoryProvider, useInventory } from './context/InventoryContext';
 import { LoginPage } from './components/auth/LoginPage';
 import { Header } from './components/layout/Header';
 import { Sidebar, TabKey } from './components/layout/Sidebar';
-import { ManagerDashboard } from './components/manager/ManagerDashboard';
-import { InventoryCatalog } from './components/manager/InventoryCatalog';
-import { InboundPOManager } from './components/manager/InboundPOManager';
-import { OutboundDispatchManager } from './components/manager/OutboundDispatchManager';
-import { SuppliersView } from './components/manager/SuppliersView';
-import { StockLedgerView } from './components/manager/StockLedgerView';
-import { WarehouseDashboard } from './components/warehouse/WarehouseDashboard';
-import { PickingOperations } from './components/warehouse/PickingOperations';
-import { ShelvingOperations } from './components/warehouse/ShelvingOperations';
-import { TransferOperations } from './components/warehouse/TransferOperations';
-import { CycleCounting } from './components/warehouse/CycleCounting';
+import { DashboardView } from './components/views/DashboardView';
+import { ProductsView } from './components/views/ProductsView';
+import { CategoriesView } from './components/views/CategoriesView';
+import { WarehousesView } from './components/views/WarehousesView';
+import { LocationsView } from './components/views/LocationsView';
+import { ReceiptsView } from './components/views/ReceiptsView';
+import { DeliveriesView } from './components/views/DeliveriesView';
+import { TransfersView } from './components/views/TransfersView';
+import { AdjustmentsView } from './components/views/AdjustmentsView';
+import { StockLedgerView } from './components/views/StockLedgerView';
+import { ReportsView } from './components/views/ReportsView';
+import { UsersView } from './components/views/UsersView';
+import { AuditLogsView } from './components/views/AuditLogsView';
+import { SettingsView } from './components/views/SettingsView';
 import { BarcodeScannerModal } from './components/warehouse/BarcodeScannerModal';
 
 const AppContent: React.FC = () => {
   const { currentUser } = useInventory();
-  const [activeTab, setActiveTab] = useState<TabKey>('manager_overview');
+  const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-
-  // Automatically adjust default active tab when role changes
-  useEffect(() => {
-    if (currentUser?.role === 'manager') {
-      if (!activeTab.startsWith('manager_')) {
-        setActiveTab('manager_overview');
-      }
-    } else if (currentUser?.role === 'warehouse_staff') {
-      if (!activeTab.startsWith('staff_')) {
-        setActiveTab('staff_overview');
-      }
-    }
-  }, [currentUser?.role]);
 
   // Unauthenticated screen
   if (!currentUser) {
@@ -41,46 +32,58 @@ const AppContent: React.FC = () => {
 
   const renderActiveTab = () => {
     switch (activeTab) {
-      // Manager Views
-      case 'manager_overview':
-        return <ManagerDashboard onNavigateTab={setActiveTab} />;
-      case 'manager_catalog':
-        return <InventoryCatalog />;
-      case 'manager_inbound':
-        return <InboundPOManager />;
-      case 'manager_outbound':
-        return <OutboundDispatchManager />;
-      case 'manager_suppliers':
-        return <SuppliersView />;
-      case 'manager_ledger':
-        return <StockLedgerView />;
-
-      // Warehouse Staff Views
-      case 'staff_overview':
+      case 'dashboard':
         return (
-          <WarehouseDashboard
+          <DashboardView
             onNavigateTab={setActiveTab}
             onOpenScanner={() => setIsScannerOpen(true)}
           />
         );
-      case 'staff_picking':
-        return <PickingOperations />;
-      case 'staff_shelving':
-        return <ShelvingOperations />;
-      case 'staff_transfers':
-        return <TransferOperations />;
-      case 'staff_cycle_counts':
-        return <CycleCounting />;
-
+      case 'products':
+        return <ProductsView />;
+      case 'categories':
+        return <CategoriesView />;
+      case 'warehouses':
+        return <WarehousesView />;
+      case 'locations':
+        return <LocationsView />;
+      case 'receipts':
+        return <ReceiptsView />;
+      case 'deliveries':
+        return <DeliveriesView />;
+      case 'transfers':
+        return <TransfersView />;
+      case 'adjustments':
+        return <AdjustmentsView />;
+      case 'stock_ledger':
+        return <StockLedgerView />;
+      case 'reports':
+        return <ReportsView />;
+      case 'users':
+        return <UsersView />;
+      case 'audit_logs':
+        return <AuditLogsView />;
+      case 'settings':
+        return <SettingsView />;
       default:
-        return <ManagerDashboard onNavigateTab={setActiveTab} />;
+        return (
+          <DashboardView
+            onNavigateTab={setActiveTab}
+            onOpenScanner={() => setIsScannerOpen(true)}
+          />
+        );
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Header onOpenScanner={() => setIsScannerOpen(true)} />
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900 selection:bg-blue-600 selection:text-white">
+      {/* Top Header */}
+      <Header
+        onOpenScanner={() => setIsScannerOpen(true)}
+        onNavigateTab={setActiveTab}
+      />
 
+      {/* Main Workspace with Collapsible Sidebar */}
       <div className="flex-1 flex overflow-hidden">
         <Sidebar
           activeTab={activeTab}
@@ -93,6 +96,7 @@ const AppContent: React.FC = () => {
         </main>
       </div>
 
+      {/* Barcode Scanner Modal */}
       <BarcodeScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}

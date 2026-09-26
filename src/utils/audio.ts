@@ -43,6 +43,11 @@ class SoundService {
     }
   }
 
+  // Alias for barcode scanner success
+  playScanSuccessBeep() {
+    this.playScanBeep();
+  }
+
   // Double high-tone success chime for order / shelving completion
   playSuccessChime() {
     try {

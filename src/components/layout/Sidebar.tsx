@@ -1,40 +1,46 @@
-import React from 'react';
+// StockX Enterprise Collapsible Navigation Sidebar
+import React, { useState } from 'react';
 import {
   LayoutDashboard,
-  Boxes,
+  Package,
+  Layers,
+  Building2,
+  MapPin,
   ArrowDownToDot,
   ArrowUpFromDot,
-  Truck,
-  History,
-  CheckSquare,
   ArrowLeftRight,
-  ClipboardList,
-  ScanLine,
   SlidersHorizontal,
-  Building2,
-  FileSpreadsheet,
+  ScrollText,
+  BarChart3,
+  Users,
+  ShieldAlert,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  ScanLine,
 } from 'lucide-react';
 import { useInventory } from '../../context/InventoryContext';
 
 export type TabKey =
-  // Manager tabs
-  | 'manager_overview'
-  | 'manager_catalog'
-  | 'manager_inbound'
-  | 'manager_outbound'
-  | 'manager_suppliers'
-  | 'manager_ledger'
-  // Staff tabs
-  | 'staff_overview'
-  | 'staff_picking'
-  | 'staff_shelving'
-  | 'staff_transfers'
-  | 'staff_cycle_counts';
+  | 'dashboard'
+  | 'products'
+  | 'categories'
+  | 'warehouses'
+  | 'locations'
+  | 'receipts'
+  | 'deliveries'
+  | 'transfers'
+  | 'adjustments'
+  | 'stock_ledger'
+  | 'reports'
+  | 'users'
+  | 'audit_logs'
+  | 'settings';
 
 interface SidebarProps {
   activeTab: TabKey;
   onSelectTab: (tab: TabKey) => void;
-  onOpenScanner: () => void;
+  onOpenScanner?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -42,229 +48,199 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   onOpenScanner,
 }) => {
-  const { currentUser, switchRole, shelvingTasks, dispatchOrders, cycleCounts, items } =
-    useInventory();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { currentUser, items, receipts, deliveries, adjustments } = useInventory();
 
-  const isManager = currentUser?.role === 'manager';
-
-  const pendingShelvingCount = shelvingTasks.filter((t) => t.status === 'pending').length;
-  const pendingPickCount = dispatchOrders.filter(
-    (d) => d.status === 'pending_picking' || d.status === 'picking_in_progress'
-  ).length;
+  // Badges
   const lowStockCount = items.filter((i) => i.stockOnHand <= i.minThreshold).length;
+  const waitingReceipts = receipts.filter((r) => r.status === 'Waiting').length;
+  const activeDeliveries = deliveries.filter(
+    (d) => d.status === 'Picking' || d.status === 'Packed'
+  ).length;
+  const pendingAdjustments = adjustments.filter((a) => a.status === 'Pending Approval').length;
+
+  const menuItems: {
+    id: TabKey;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    badge?: number;
+    badgeColor?: string;
+    allowedRoles?: ('ADMIN' | 'INVENTORY_MANAGER' | 'WAREHOUSE_STAFF')[];
+    section?: string;
+  }[] = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      section: 'Core Overview',
+    },
+    {
+      id: 'products',
+      label: 'Products',
+      icon: Package,
+      badge: lowStockCount > 0 ? lowStockCount : undefined,
+      badgeColor: 'bg-amber-500/20 text-amber-400 border border-amber-500/40',
+      section: 'Inventory Operations',
+    },
+    {
+      id: 'categories',
+      label: 'Categories',
+      icon: Layers,
+    },
+    {
+      id: 'warehouses',
+      label: 'Warehouses',
+      icon: Building2,
+    },
+    {
+      id: 'locations',
+      label: 'Locations',
+      icon: MapPin,
+    },
+    {
+      id: 'receipts',
+      label: 'Receipts',
+      icon: ArrowDownToDot,
+      badge: waitingReceipts > 0 ? waitingReceipts : undefined,
+      badgeColor: 'bg-blue-500/20 text-blue-400 border border-blue-500/40',
+      section: 'Stock Flow & Logistics',
+    },
+    {
+      id: 'deliveries',
+      label: 'Deliveries',
+      icon: ArrowUpFromDot,
+      badge: activeDeliveries > 0 ? activeDeliveries : undefined,
+      badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40',
+    },
+    {
+      id: 'transfers',
+      label: 'Internal Transfers',
+      icon: ArrowLeftRight,
+    },
+    {
+      id: 'adjustments',
+      label: 'Stock Adjustments',
+      icon: SlidersHorizontal,
+      badge: pendingAdjustments > 0 ? pendingAdjustments : undefined,
+      badgeColor: 'bg-red-500/20 text-red-400 border border-red-500/40',
+    },
+    {
+      id: 'stock_ledger',
+      label: 'Stock Ledger',
+      icon: ScrollText,
+      section: 'Traceability & Analytics',
+    },
+    {
+      id: 'reports',
+      label: 'Reports',
+      icon: BarChart3,
+    },
+    {
+      id: 'users',
+      label: 'User Management',
+      icon: Users,
+      section: 'Administration',
+    },
+    {
+      id: 'audit_logs',
+      label: 'Audit Logs',
+      icon: ShieldAlert,
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: Settings,
+    },
+  ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none">
-      <div className="p-4 space-y-6">
-        {/* Role badge with quick-switch hint */}
-        <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-center justify-between">
-          <div>
-            <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400">
-              Active Workspace
-            </div>
-            <div className="text-xs font-semibold text-white">
-              {isManager ? 'Stock Strategy & In/Out' : 'Warehouse Floor Ops'}
-            </div>
-          </div>
-          <button
-            onClick={() => switchRole(isManager ? 'warehouse_staff' : 'manager')}
-            title="Switch Persona"
-            className="p-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Navigation Groups */}
-        {isManager ? (
-          <div className="space-y-1">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 px-3 pb-1">
-              Inventory Management
-            </div>
-
-            <button
-              onClick={() => onSelectTab('manager_overview')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'manager_overview'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4 shrink-0" />
-              <span>Executive Overview</span>
-            </button>
-
-            <button
-              onClick={() => onSelectTab('manager_catalog')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'manager_catalog'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Boxes className="w-4 h-4 shrink-0" />
-                <span>Stock Catalog & Bins</span>
-              </div>
-              {lowStockCount > 0 && (
-                <span className="font-mono text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">
-                  {lowStockCount} low
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => onSelectTab('manager_inbound')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'manager_inbound'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <ArrowDownToDot className="w-4 h-4 shrink-0" />
-              <span>Inbound Stock & POs</span>
-            </button>
-
-            <button
-              onClick={() => onSelectTab('manager_outbound')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'manager_outbound'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <ArrowUpFromDot className="w-4 h-4 shrink-0" />
-              <span>Outbound Dispatches</span>
-            </button>
-
-            <button
-              onClick={() => onSelectTab('manager_suppliers')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'manager_suppliers'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <Building2 className="w-4 h-4 shrink-0" />
-              <span>Suppliers & Procurement</span>
-            </button>
-
-            <button
-              onClick={() => onSelectTab('manager_ledger')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'manager_ledger'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <History className="w-4 h-4 shrink-0" />
-              <span>Audit Ledger & History</span>
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 px-3 pb-1">
-              Floor Tasks & Execution
-            </div>
-
-            <button
-              onClick={() => onSelectTab('staff_overview')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'staff_overview'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4 shrink-0" />
-              <span>Floor Tasks Hub</span>
-            </button>
-
-            <button
-              onClick={() => onSelectTab('staff_picking')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'staff_picking'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <CheckSquare className="w-4 h-4 shrink-0" />
-                <span>Picking Operations</span>
-              </div>
-              {pendingPickCount > 0 && (
-                <span className="font-mono text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">
-                  {pendingPickCount} orders
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => onSelectTab('staff_shelving')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'staff_shelving'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Boxes className="w-4 h-4 shrink-0" />
-                <span>Put-away & Shelving</span>
-              </div>
-              {pendingShelvingCount > 0 && (
-                <span className="font-mono text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">
-                  {pendingShelvingCount} tasks
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => onSelectTab('staff_transfers')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'staff_transfers'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <ArrowLeftRight className="w-4 h-4 shrink-0" />
-              <span>Bin & Hub Transfers</span>
-            </button>
-
-            <button
-              onClick={() => onSelectTab('staff_cycle_counts')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
-                activeTab === 'staff_cycle_counts'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <ClipboardList className="w-4 h-4 shrink-0" />
-              <span>Physical Cycle Counting</span>
-            </button>
+    <aside
+      className={`bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none transition-all duration-200 ${
+        isCollapsed ? 'w-18' : 'w-64'
+      }`}
+    >
+      {/* Top Header / Collapser */}
+      <div className="p-3 border-b border-slate-800 flex items-center justify-between">
+        {!isCollapsed && (
+          <div className="px-2">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+              Workspace Menu
+            </span>
           </div>
         )}
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={`p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ${
+            isCollapsed ? 'mx-auto' : ''
+          }`}
+          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
+      </div>
 
-        {/* Floor Quick Actions */}
-        <div className="pt-2 border-t border-slate-800 space-y-2">
+      {/* Navigation Menu List */}
+      <div className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+
+          return (
+            <React.Fragment key={item.id}>
+              {item.section && !isCollapsed && (
+                <div className="pt-3 pb-1 px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                  {item.section}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => onSelectTab(item.id)}
+                title={isCollapsed ? item.label : undefined}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all text-left ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                } ${isCollapsed ? 'justify-center px-0' : 'justify-between'}`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  {!isCollapsed && <span className="truncate">{item.label}</span>}
+                </div>
+
+                {!isCollapsed && item.badge !== undefined && (
+                  <span
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${item.badgeColor || 'bg-blue-500/20 text-blue-300'}`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+                {isCollapsed && item.badge !== undefined && (
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-500" />
+                )}
+              </button>
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {/* Bottom Barcode Quick Launch */}
+      {onOpenScanner && (
+        <div className="p-3 border-t border-slate-800">
           <button
+            type="button"
             onClick={onOpenScanner}
-            className="w-full py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-2 border border-slate-700"
+            className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors ${
+              isCollapsed ? 'px-0' : ''
+            }`}
+            title="Scan Barcode"
           >
-            <ScanLine className="w-3.5 h-3.5 text-blue-400" />
-            <span>Open Barcode Terminal</span>
+            <ScanLine className="w-4 h-4 text-blue-400 shrink-0" />
+            {!isCollapsed && <span>Scan Barcode</span>}
           </button>
         </div>
-      </div>
-
-      {/* Footer System Status */}
-      <div className="p-4 border-t border-slate-800 text-[11px] text-slate-400 font-mono">
-        <div className="flex items-center justify-between">
-          <span>Terminal Hub</span>
-          <span className="text-emerald-400 font-semibold">Active</span>
-        </div>
-        <div className="text-slate-400 mt-1 truncate">
-          Role: {isManager ? 'Inventory Manager' : 'Warehouse Staff'}
-        </div>
-      </div>
+      )}
     </aside>
   );
 };

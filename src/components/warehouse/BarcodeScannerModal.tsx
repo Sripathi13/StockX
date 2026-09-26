@@ -29,11 +29,12 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
   onItemScanned,
   targetSkuPrompt,
 }) => {
-  const { items, currentUser, activeWarehouseId, manualStockAdjust } = useInventory();
+  const { items, currentUser, activeWarehouseId, updateItem } = useInventory();
   const [manualCode, setManualCode] = useState('');
   const [scannedItem, setScannedItem] = useState<InventoryItem | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [lookupError, setLookupError] = useState<string | null>(null);
   const [quickActionSuccess, setQuickActionSuccess] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -44,6 +45,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
       stopCamera();
       setScannedItem(null);
       setManualCode('');
+      setLookupError(null);
       setQuickActionSuccess(null);
     }
   }, [isOpen]);
@@ -81,6 +83,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
   const handleLookup = (code: string) => {
     const clean = code.trim().toLowerCase();
     if (!clean) return;
+    setLookupError(null);
 
     const found = items.find(
       (i) =>
@@ -98,13 +101,14 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
       }
     } else {
       soundService.playAlertTone();
-      alert(`No inventory item matched barcode or SKU: "${code}"`);
+      setLookupError(`No inventory item matched barcode or SKU: "${code}"`);
     }
   };
 
   const handleSimulatedScan = (item: InventoryItem) => {
     soundService.playScanBeep();
     setScannedItem(item);
+    setLookupError(null);
     setQuickActionSuccess(null);
     if (onItemScanned) {
       onItemScanned(item);
@@ -215,11 +219,18 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
             </div>
             <button
               type="submit"
-              className="px-4 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors shrink-0"
+              className="px-4 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
             >
               Scan / Lookup
             </button>
           </form>
+
+          {lookupError && (
+            <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{lookupError}</span>
+            </div>
+          )}
 
           {/* Scanned Result Card */}
           {scannedItem && (
@@ -277,10 +288,11 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <button
                   onClick={() => {
-                    manualStockAdjust(scannedItem.id, 1, 'Quick restock scan via terminal', false);
+                    updateItem(scannedItem.id, { stockOnHand: scannedItem.stockOnHand + 1 });
+                    setScannedItem((prev) => prev ? { ...prev, stockOnHand: prev.stockOnHand + 1 } : null);
                     setQuickActionSuccess(`Added +1 ${scannedItem.unit} to stock on hand.`);
                   }}
-                  className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-medium rounded shadow-2xs transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-medium rounded shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <RefreshCw className="w-3 h-3 text-blue-600" />
                   Quick Count +1
@@ -290,7 +302,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                     soundService.playSuccessChime();
                     setQuickActionSuccess(`Verified location ${scannedItem.binLocation} for ${scannedItem.sku}`);
                   }}
-                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded shadow-2xs transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <CheckCircle2 className="w-3 h-3" />
                   Verify Shelf Bin
